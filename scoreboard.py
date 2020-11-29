@@ -6,6 +6,9 @@
 # 开发用途：alien_invation's score
 
 import pygame.font
+from pygame.sprite import Group
+
+from aircraft import Ship
 
 
 class Scoreboard:
@@ -13,6 +16,7 @@ class Scoreboard:
 
     def __init__(self, ai_game):
         """初始化显示得分涉及的属性"""
+        self.ai_game = ai_game
         self.screen = ai_game.screen
         self.screen_rect = self.screen.get_rect()
         self.settings = ai_game.settings
@@ -24,6 +28,8 @@ class Scoreboard:
         # 准备初始化得分图像
         self.prep_score()
         self.prep_heigh_score()
+        self.prep_level()
+        self.prep_ships()
 
     def prep_score(self):
         """"将得分转换为为一幅渲染图像"""
@@ -48,14 +54,34 @@ class Scoreboard:
         self.heigh_score_rect.centerx = self.screen_rect.centerx
         self.heigh_score_rect.top = self.score_rect.top
 
+    def prep_level(self):
+        """将等级渲染为图像"""
+        level_str = str(self.stats.level)
+        self.level_image = self.font.render(level_str, True, self.text_color, self.settings.bg_color)
+
+        # 将等级放在得分下面
+        self.level_rect = self.level_image.get_rect()
+        self.level_rect.right = self.score_rect.right
+        self.level_rect.top = self.score_rect.bottom + 10
+
+    def prep_ships(self):
+        """显示还余下多少艏飞船"""
+        self.ships = Group()
+        for ship_number in range(self.stats.ships_left):
+            ship = Ship(self.ai_game)
+            ship.rect.x = 10 + ship_number * ship.rect.width
+            ship.rect.y = 10
+            self.ships.add(ship)
 
     def show_score(self):
-        """在屏幕上显示得分"""
+        """在屏幕上显示得分和等级"""
         self.screen.blit(self.score_image, self.score_rect)
-        self.screen.blit(self.heigh_score_image,self.heigh_score_rect)
+        self.screen.blit(self.heigh_score_image, self.heigh_score_rect)
+        self.screen.blit(self.level_image, self.level_rect)
+        self.ships.draw(self.screen)
 
     def check_heigh_score(self):
         """检查是否诞生了新的最高得分。"""
-        if self.stats.score>self.stats.heigh_score:
-            self.stats.heigh_score =self.stats.score
+        if self.stats.score > self.stats.heigh_score:
+            self.stats.heigh_score = self.stats.score
             self.prep_heigh_score()

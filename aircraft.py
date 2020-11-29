@@ -5,13 +5,14 @@
 # 开发工具：PyCharm
 # 开发用途：alien_invation's aircraft
 import pygame
+from pygame.sprite import Sprite
 
-
-class Ship:
+class Ship(Sprite):
     """管理飞船的类"""
 
     def __init__(self, ai_game):
         """初始化飞船并设置其初始位置。"""
+        super().__init__()
         self.screen = ai_game.screen
         self.settings = ai_game.settings
         self.screen_rect = ai_game.screen.get_rect()
